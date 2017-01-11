@@ -4,8 +4,13 @@ from exsim.message import *
 
 class Engine(object):
 
-    def __init__(self):
+    def __init__(self, name):
+        self.name = name
         self.markets = {}  # symbol: book
+        return
+
+    def delete(self):
+        # Clean up.
         return
 
     def handle_trade_flow(self, message):
