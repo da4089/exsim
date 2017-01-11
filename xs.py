@@ -4,6 +4,14 @@ import exsim
 
 def main():
 
+    # Server
+    server = exsim.Server()
+    server.listen(11111)
+
+    server.run()
+
+    return
+    
     # Matching engine.
     engine = exsim.Engine()
 
