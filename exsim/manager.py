@@ -1,7 +1,11 @@
 #! /usr/bin/env python
 
+import logging
 import pickle
 import struct
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 class Manager(object):
     """Server manager."""
@@ -46,15 +50,18 @@ class Manager(object):
 
         # Check we have a header.
         if len(self._buffer) < 4:
+            logging.debug("Manager buffer < 4")
             return None
 
         # Unpack header, and sanity check.
-        l = struct.unpack("<L", self._buffer[:4])
-        if l > 64 * 1024:
+        l = struct.unpack("<L", self._buffer[:4])[0]
+        if l > 65535:
+            logging.debug("Manager buffer > 64KB (%d)" % l)
             return None
 
         # Check we have the full packet.
         if len(self._buffer) < l + 4:
+            logging.debug("Manager received message fragment")
             return None
 
         msg = pickle.loads(self._buffer[4:l+4])
@@ -66,8 +73,10 @@ class Manager(object):
     def dispatch(self, message):
         """Handle a decoded management session message."""
 
-        handler = self.table.get(message.type, None)
+        handler = self._table.get(message["type"], None)
         if not handler:
+            logging.warning("No handler for '%s' request" % message["type"])
+            # FIXME: create error reply.
             return
 
         reply = {}
@@ -82,7 +91,4 @@ class Manager(object):
         self._server.create_engine(request.name)
         reply.result = True
         return
-
-
-
 
