@@ -20,7 +20,10 @@ class Session(object):
         self._socket = sock
         self._address = addr
         self._parser = FixParser()
+
         self._gateway = None
+        self._protocol = None
+        self._engine = None
 
         # Next expected sequence number.
         self._in_seq = 1
@@ -39,8 +42,19 @@ class Session(object):
         self._gateway = gateway
         return
 
+    def set_engine(self, engine):
+        self._engine = engine
+        return
+
+    def set_protocol(self, protocol):
+        self._protocol = protocol
+        return
+
     def socket(self):
         return self._socket
+
+    def address(self):
+        return self._address
 
     def close(self):
         self._socket.close()

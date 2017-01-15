@@ -139,3 +139,13 @@ class Manager(object):
         except Exception as e:
             self.set_error(reply, "create_endpoint", e.message)
         return
+
+    def handle_set_endpoint_engine(self, request, reply):
+        if not self.check_parameters(request, reply, []):
+            return
+        try:
+            self._server.set_endpoint_engine(request["endpoint"], request["engine"])
+            self.set_success(reply, "set_endpoint_engine")
+        except Exception as e:
+            self.set_error(reply, "set_endpoint_engine", e.message)
+        return

@@ -71,6 +71,10 @@ if __name__ == "__main__":
     reply.clear()
     api.send(request, reply)
 
+    request = {"type": "set_endpoint_engine", "engine": "e1", "endpoint": "ep1"}
+    reply.clear()
+    api.send(request, reply)
+
     request = {"type": "delete_engine", "name": "e1"}
     reply.clear()
     api.send(request, reply)
