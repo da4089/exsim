@@ -7,36 +7,12 @@ import socket
 import time
 
 from fix_protocol import FixParser, FixMessage, print_fix
+from engine import Engine
 from manager import Manager
+from endpoint import Endpoint
 
 
 logging.basicConfig(level=logging.DEBUG)
-
-
-class Endpoint(object):
-
-    def __init__(self):
-        return
-
-    def listen(self, port):
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._socket.bind(('0.0.0.0', port))
-        self._socket.listen(5)
-        return self._socket
-
-    def close(self):
-        return
-
-    def socket(self):
-        return self._socket
-
-    # FIXME: add accept()
-
-    # FIXME: move to session
-    def send(self, buffer):
-        return self._socket.send(buffer)
-
 
 
 class Server(object):
@@ -131,9 +107,9 @@ class Server(object):
             endpoints = self.get_endpoints()
             managers = self.get_managers()
 
-            r, w, x = select.select(sessions + 
-                                    endpoints + 
-                                    managers + 
+            r, w, x = select.select(sessions +
+                                    endpoints +
+                                    managers +
                                     [self._mgmt_sock],
                                     [], [], wait)
 
@@ -162,7 +138,7 @@ class Server(object):
 
     def create_engine(self, name):
         if name in self._engines:
-            raise KeyError()
+            raise KeyError("Engine '%s' already exists" % name)
 
         engine = Engine(name)
         self._engines[name] = engine
@@ -203,5 +179,3 @@ class Server(object):
         self._endpoints[name] = endpoint
 
         return
-
-

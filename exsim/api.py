@@ -41,21 +41,21 @@ class API:
                 # FIXME: set error in reply
                 return False
 
-            self._buffer.append(data)
+            self._buffer += data
             if len(self._buffer) < 4:
                 continue
 
-            length = struct.unpack(self._buffer[:4], "<L")[0]
+            length = struct.unpack("<L", self._buffer[:4])[0]
             if len(self._buffer) < length + 4:
                 continue
 
             tmp = pickle.loads(self._buffer[4:4+length])
-            reply.extend(tmp)
+            reply.update(tmp)
             self._buffer = self._buffer[4+length:]
             if len(self._buffer) > 0:
                 # FIXME: report error
                 pass
-                
+
             return True
 
 
@@ -63,6 +63,6 @@ if __name__ == "__main__":
     api = API()
     api.connect("localhost", 10101)
 
-    request = {'type': 'create_engine'}
+    request = {'type': 'create_engine', 'name': 'e1'}
     reply = {}
     api.send(request, reply)

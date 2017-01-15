@@ -14,8 +14,10 @@ class Manager(object):
         self._socket = sock
         self._address = addr
         self._server = None
-        self._table = {}
         self._buffer = ""
+
+        self._table = {}
+        self._table["create_engine"] = self.handle_create_engine
         return
 
     def set_server(self, server):
@@ -45,6 +47,11 @@ class Manager(object):
         self.dispatch(msg)
         return
 
+    def send(self, msg):
+        data = pickle.dumps(msg)
+        header = struct.pack("<L", len(data))
+        self._socket.sendall(header + data)
+        return
 
     def parse_message(self):
 
@@ -68,7 +75,7 @@ class Manager(object):
         self._buffer = self._buffer[l+4:]
 
         return msg
-    
+
 
     def dispatch(self, message):
         """Handle a decoded management session message."""
@@ -81,14 +88,25 @@ class Manager(object):
 
         reply = {}
         handler(message, reply)
-
-        # FIXME: send reply
-
+        self.send(reply)
         return
 
 
     def handle_create_engine(self, request, reply):
-        self._server.create_engine(request.name)
-        reply.result = True
-        return
+        if "name" not in request:
+            logging.info("Failed to create engine: missing 'name' parameter")
+            reply["result"] = False
+            reply["message"] = "Missing 'name' parameter"
+            return
 
+        try:
+            self._server.create_engine(request["name"])
+            reply["result"] = True
+            logging.info("Created engine '%s'" % request["name"])
+            return
+
+        except Exception as e:
+            logging.info("Failed to create engine: %s" % e.message)
+            reply["result"] = False
+            reply["message"] = e.message
+            return

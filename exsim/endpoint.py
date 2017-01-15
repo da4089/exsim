@@ -1,12 +1,7 @@
 #! /usr/bin/python
 
-import datetime
 import logging
-import select
 import socket
-import time
-
-from fix_protocol import FixParser, FixMessage, print_fix
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -30,6 +25,11 @@ class Endpoint(object):
     def socket(self):
         return self._socket
 
+    # FIXME: add accept()
+
+    # FIXME: move to session
+    def send(self, buffer):
+        return self._socket.send(buffer)
 
 
     def set_protocol(self, name):
@@ -38,4 +38,3 @@ class Endpoint(object):
 
     def connect_engine(self, name):
         return
-
