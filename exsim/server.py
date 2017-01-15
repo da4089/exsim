@@ -19,6 +19,7 @@ class Server(object):
     def __init__(self):
         self._engines = {}  # name: engine
         self._endpoints = {}  # name: endpoint
+        self._protocols = {}  # name: protocol
 
         self._session_socks = {}  #  socket: session
         self._manager_socks = {}  #  socket: manager
@@ -179,6 +180,18 @@ class Server(object):
         return
 
 
+    def load_protocol(self, name, module_name, class_name):
+        if name in self._protocols:
+            return KeyError("Protocol '%s' already exists" % name)
+
+        #FIXME: sanitise!
+        exec("from exsim import %s" % module_name)
+        exec("protocol = %s.%s" % (module_name, class_name))
+        self._protocols[name] = protocol
+        print "done"
+        return
+
+
     def create_endpoint(self, name, port):
         if name in self._endpoints:
             return KeyError("Endpoint '%s' already exists" % name)
@@ -199,6 +212,19 @@ class Server(object):
         endpoint = self._endpoints[endpoint_name]
         engine = self._engines[engine_name]
         endpoint.set_engine(engine)
+        return
+
+
+    def set_endpoint_protocol(self, endpoint_name, protocol_name):
+        if endpoint_name not in self._endpoints:
+            return KeyError("No such endpoint: '%s'" % endpoint_name)
+
+        if protocol_name not in self._protocols:
+            raise KeyError("No such protocol: '%s'" % protocol_name)
+
+        endpoint = self._endpoints[endpoint_name]
+        protocol = self._protocols[protocol_name]
+        endpoint.set_protocol(protocol)
         return
 
 

@@ -75,6 +75,14 @@ if __name__ == "__main__":
     reply.clear()
     api.send(request, reply)
 
+    request = {"type": "load_protocol", "name": "fix", "module": "fix_protocol", "class": "FixProtocol"}
+    reply.clear()
+    api.send(request, reply)
+
+    request = {"type": "set_endpoint_protocol", "endpoint": "ep1", "protocol": "fix"}
+    reply.clear()
+    api.send(request, reply)
+
     request = {"type": "delete_engine", "name": "e1"}
     reply.clear()
     api.send(request, reply)

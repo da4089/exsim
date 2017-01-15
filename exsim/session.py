@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 
 import logging
 
@@ -35,7 +35,7 @@ class Session(object):
         return
 
     def set_protocol(self, protocol):
-        self._protocol = protocol
+        self._protocol = protocol(self)
         return
 
     def close(self):

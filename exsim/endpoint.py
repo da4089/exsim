@@ -23,15 +23,8 @@ class Endpoint(object):
         self._socket.listen(5)
         return
 
-    def close(self):
-        return
-
     def socket(self):
         return self._socket
-
-    # FIXME: move to session
-    def send(self, buffer):
-        return self._socket.send(buffer)
 
     def set_engine(self, engine):
         self._engine = engine
@@ -39,6 +32,11 @@ class Endpoint(object):
 
     def set_protocol(self, protocol):
         self._protocol = protocol
+        return
+
+    def close(self):
+        self._socket.close()
+        self._socket = None
         return
 
     def accept(self):
