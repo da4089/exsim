@@ -66,3 +66,7 @@ if __name__ == "__main__":
     request = {'type': 'create_engine', 'name': 'e1'}
     reply = {}
     api.send(request, reply)
+
+    request = {"type": "delete_engine", "name": "e1"}
+    reply.clear()
+    api.send(request, reply)

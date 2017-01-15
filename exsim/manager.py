@@ -18,6 +18,7 @@ class Manager(object):
 
         self._table = {}
         self._table["create_engine"] = self.handle_create_engine
+        self._table["delete_engine"] = self.handle_delete_engine
         return
 
     def set_server(self, server):
@@ -92,21 +93,36 @@ class Manager(object):
         return
 
 
+    def set_error(self, reply, request_name, error):
+        logging.info("Request '%s' failed: %s" % (request_name, error))
+
+        reply["result"] = False
+        reply["message"] = error
+        return
+
+    def set_success(self, reply, request_name):
+        logging.info("Request '%s': succeeded" % request_name)
+        reply["result"] = True
+        return
+
     def handle_create_engine(self, request, reply):
         if "name" not in request:
-            logging.info("Failed to create engine: missing 'name' parameter")
-            reply["result"] = False
-            reply["message"] = "Missing 'name' parameter"
+            self.set_error(reply, "create_engine", "Missing 'name' parameter")
             return
-
         try:
             self._server.create_engine(request["name"])
-            reply["result"] = True
-            logging.info("Created engine '%s'" % request["name"])
-            return
-
+            self.set_success(reply, "create_engine")
         except Exception as e:
-            logging.info("Failed to create engine: %s" % e.message)
-            reply["result"] = False
-            reply["message"] = e.message
+            self.set_error(reply, "create_engine", e.message)
+        return
+
+    def handle_delete_engine(self, request, reply):
+        if "name" not in request:
+            self.set_error(reply, "delete_engine", "Missing 'name' parameter")
             return
+        try:
+            self._server.delete_engine(request["name"])
+            self.set_success(reply, "delete_engine")
+        except Exception as e:
+            self.set_error(reply, "delete_engine", e.message)
+        return
