@@ -15,10 +15,6 @@ class Manager(object):
         self._address = addr
         self._server = None
         self._buffer = ""
-
-        self._table = {}
-        self._table["create_engine"] = self.handle_create_engine
-        self._table["delete_engine"] = self.handle_delete_engine
         return
 
     def set_server(self, server):
@@ -81,13 +77,13 @@ class Manager(object):
     def dispatch(self, message):
         """Handle a decoded management session message."""
 
-        handler = self._table.get(message["type"], None)
-        if not handler:
+        if not hasattr(self, "handle_" + message["type"]):
             logging.warning("No handler for '%s' request" % message["type"])
             # FIXME: create error reply.
             return
 
         reply = {}
+        handler = getattr(self, 'handle_' + message["type"])
         handler(message, reply)
         self.send(reply)
         return
@@ -105,9 +101,17 @@ class Manager(object):
         reply["result"] = True
         return
 
+    def check_parameters(self, request, reply, names):
+        for name in names:
+            if name not in request:
+                self.set_error(reply,
+                               request["type"],
+                               "Missing '%s' parameter" % name)
+                return False
+        return True
+
     def handle_create_engine(self, request, reply):
-        if "name" not in request:
-            self.set_error(reply, "create_engine", "Missing 'name' parameter")
+        if not self.check_parameters(request, reply, ['name']):
             return
         try:
             self._server.create_engine(request["name"])
@@ -117,12 +121,21 @@ class Manager(object):
         return
 
     def handle_delete_engine(self, request, reply):
-        if "name" not in request:
-            self.set_error(reply, "delete_engine", "Missing 'name' parameter")
+        if not self.check_parameters(request, reply, ['name']):
             return
         try:
             self._server.delete_engine(request["name"])
             self.set_success(reply, "delete_engine")
         except Exception as e:
             self.set_error(reply, "delete_engine", e.message)
+        return
+
+    def handle_create_endpoint(self, request, reply):
+        if not self.check_parameters(request, reply, ['name', 'port']):
+            return
+        try:
+            self._server.create_endpoint(request["name"], request["port"])
+            self.set_success(reply, "create_endpoint")
+        except Exception as e:
+            self.set_error(reply, "create_endpoint", e.message)
         return

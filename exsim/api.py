@@ -67,6 +67,10 @@ if __name__ == "__main__":
     reply = {}
     api.send(request, reply)
 
+    request = {"type": "create_endpoint", "name": "ep1", "port": 10102}
+    reply.clear()
+    api.send(request, reply)
+
     request = {"type": "delete_engine", "name": "e1"}
     reply.clear()
     api.send(request, reply)

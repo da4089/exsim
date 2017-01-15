@@ -9,15 +9,13 @@ logging.basicConfig(level=logging.DEBUG)
 
 class Endpoint(object):
 
-    def __init__(self):
-        return
-
-    def listen(self, port):
+    def __init__(self, name, port):
+        self._name = name
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._socket.bind(('0.0.0.0', port))
         self._socket.listen(5)
-        return self._socket
+        return
 
     def close(self):
         return

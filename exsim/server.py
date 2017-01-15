@@ -26,18 +26,14 @@ class Server(object):
         self._timeouts = []
 
         # Management interface.
-        self._mgmt_ep = Endpoint()
-        self._mgmt_sock = self._mgmt_ep.listen(10101)
+        self._mgmt_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._mgmt_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self._mgmt_sock.bind(('0.0.0.0', 10101))
+        self._mgmt_sock.listen(5)
         return
 
     def set_engine(self, engine):
         self._engine = engine
-        return
-
-    def listen(self, port):
-        e = Endpoint()
-        sock = e.listen(port)
-        self._endpoints[sock] = e
         return
 
     def authenticate(self, username, password, source_addreess):
@@ -171,11 +167,11 @@ class Server(object):
         return
 
 
-    def create_endpoint(self, name):
+    def create_endpoint(self, name, port):
         if name in self._endpoints:
             return KeyError()
 
-        endpoint = Endpoint(name)
+        endpoint = Endpoint(name, port)
         self._endpoints[name] = endpoint
 
         return
