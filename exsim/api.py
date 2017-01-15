@@ -24,7 +24,77 @@ class API:
         logging.info("Connected: %s:%u" % (host, int(port)))
         return
 
-    def send(self, request, reply):
+    def create_engine(self, name):
+        request = {'type': 'create_engine', 'name': name}
+        reply = {}
+        api._send(request, reply)
+
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
+
+    def create_endpoint(self, name, port):
+        request = {"type": "create_endpoint", "name": name, "port": port}
+        reply = {}
+        api._send(request, reply)
+
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
+
+    def set_endpoint_engine(self, engine, endpoint):
+        request = {"type": "set_endpoint_engine",
+                   "engine": engine,
+                   "endpoint": endpoint}
+        reply = {}
+        api._send(request, reply)
+
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
+
+    def load_protocol(self, name, module, klass):
+        request = {"type": "load_protocol",
+                   "name": name,
+                   "module": module,
+                   "class": klass}
+        reply = {}
+        api._send(request, reply)
+
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
+
+
+    def set_endpoint_protocol(self, endpoint, protocol):
+        request = {"type": "set_endpoint_protocol",
+                   "endpoint": endpoint,
+                   "protocol": protocol}
+        reply = {}
+        api._send(request, reply)
+
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
+
+
+    def delete_engine(self, name):
+        request = {"type": "delete_engine", "name": name}
+        reply = {}
+        api._send(request, reply)
+
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
+
+
+    def _send(self, request, reply):
 
         # Send request.
         body = pickle.dumps(request)
@@ -62,27 +132,10 @@ class API:
 if __name__ == "__main__":
     api = API()
     api.connect("localhost", 10101)
+    api.create_engine("e1")
+    api.create_endpoint("ep1", 10102)
+    api.set_endpoint_engine("ep1", "e1")
+    api.load_protocol("fix", "fix_protocol", "FixProtocol")
+    api.set_endpoint_protocol("ep1", "fix")
 
-    request = {'type': 'create_engine', 'name': 'e1'}
-    reply = {}
-    api.send(request, reply)
-
-    request = {"type": "create_endpoint", "name": "ep1", "port": 10102}
-    reply.clear()
-    api.send(request, reply)
-
-    request = {"type": "set_endpoint_engine", "engine": "e1", "endpoint": "ep1"}
-    reply.clear()
-    api.send(request, reply)
-
-    request = {"type": "load_protocol", "name": "fix", "module": "fix_protocol", "class": "FixProtocol"}
-    reply.clear()
-    api.send(request, reply)
-
-    request = {"type": "set_endpoint_protocol", "endpoint": "ep1", "protocol": "fix"}
-    reply.clear()
-    api.send(request, reply)
-
-    request = {"type": "delete_engine", "name": "e1"}
-    reply.clear()
-    api.send(request, reply)
+    api.delete_engine("e1")
