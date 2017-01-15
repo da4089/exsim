@@ -18,6 +18,24 @@ Introduction
 # Policy modules can be loaded for automatic message handling.
 # Basic matching engine will manage books, publish data, and match orders.
 
+Endpoint
+  A listening socket, attached to a matching engine, and configured
+  with a protocol to encode and decode received messages.
+
+Session
+  A socket connection, initiated by a client application.  Sessions
+  are created by Endpoints, and inherit their Endpoint's Protocol and
+  Engine.
+
+Protocol
+  An encoder and decoder that converts messages in a trading protocol
+  (like, FIX or OUCH) into Python dictionaries that are passed to the
+  matching engine for action.
+
+  The protocol can optionally handle some of the "mechanics" of the
+  communication: sequence numbers, heartbeats, etc.  But actual
+  trading messages are simply translated and handed off to the engine.
+
 
 # Milestone 1
 #
