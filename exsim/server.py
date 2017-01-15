@@ -6,7 +6,6 @@ import select
 import socket
 import time
 
-from fix_protocol import FixParser, FixMessage, print_fix
 from engine import Engine
 from manager import Manager
 from endpoint import Endpoint

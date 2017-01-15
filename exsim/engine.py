@@ -3,6 +3,7 @@
 from exsim.message import *
 
 class Engine(object):
+    """A matching engine."""
 
     def __init__(self, name):
         self.name = name

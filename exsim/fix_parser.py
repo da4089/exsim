@@ -1,35 +1,3 @@
-########################################################################
-# robot-nps, Network Protocol Simulator for Robot Framework
-#
-# Copyright (C) 2015-2016 David Arnold
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-########################################################################
-
-# Implements generic FIX protocol.
-#
-# Each message is a collection of tag+value pairs.  Tags are integers,
-# but values are converted to strings when they're set (if not
-# before).  The pairs are maintained in order of creation.  Duplicates
-# and repeating groups are allowed.
-#
-# If tags 8, 9 or 10 are not supplied, they will be automatically
-# added in the correct location, and with correct values.  You can
-# supply these tags in the wrong order for testing error handling.
-
-########################################################################
 
 # FIX field delimiter character.
 SOH = '\001'
@@ -38,62 +6,6 @@ SOH = '\001'
 def print_fix(s):
     cooked = s.replace(SOH, '|')
     print cooked
-
-
-class FixParser(object):
-
-    def __init__(self):
-        self.reset()
-        return
-
-    def reset(self):
-        """Reset the parser state.
-
-        Discards any received by unprocessed data."""
-        self.buf = ""
-        self.pairs = []
-        return
-
-    def append_buffer(self, buf):
-        """Accumulate string data for this parser."""
-        self.buf += buf
-        return
-
-    def get_message(self):
-        # Break buffer into tag=value pairs.
-        pairs = self.buf.split(SOH)
-        if len(pairs) > 0:
-            self.pairs.extend(pairs[:-1])
-            if pairs[-1] == '':
-                self.buf = ''
-            else:
-                self.buf = pairs[-1]
-
-        if len(self.pairs) == 0:
-            return None
-
-        # Check first pair is FIX BeginString.
-        while self.pairs and self.pairs[0][:6] != "8=FIX.":
-            # Discard pairs until we find the beginning of a message.
-            junk = self.pairs.pop(0)
-
-        if len(self.pairs) == 0:
-            return None
-
-        # Look for checksum.
-        index = 0
-        while index < len(self.pairs) and self.pairs[index][:3] != "10=":
-            index += 1
-
-        if index == len(self.pairs):
-            return None
-
-        # Found checksum, so we have a complete message.
-        m = FixMessage()
-        m.append_strings(self.pairs[:index + 1])
-        self.pairs = self.pairs[index:]
-
-        return m
 
 
 class FixMessage(object):
