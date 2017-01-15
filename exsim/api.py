@@ -129,6 +129,46 @@ class API:
             return True
 
 
+########################################################################
+
+class Server(object):
+    def __init__(self, name):
+        self.name = name
+        return
+
+    def load_protocol(self, name, module):
+        return
+
+class Engine(object):
+    def __init__(self, name):
+        self.name = name
+        return
+
+    def create_endpoint(self, name):
+        ep = Endpoint(name)
+        self._endpoints[name] = ep
+        return ep
+
+    def create_message(self, name):
+        msg = Message(name)
+        self._messages[name] = msg
+        return msg
+
+class Endpoint(object):
+    def __init__(self, name):
+        self.name = name
+        return
+
+class Session(object):
+    pass
+
+class Message(object):
+    pass
+
+
+
+########################################################################
+
 if __name__ == "__main__":
     api = API()
     api.connect("localhost", 10101)
@@ -137,5 +177,18 @@ if __name__ == "__main__":
     api.set_endpoint_engine("ep1", "e1")
     api.load_protocol("fix", "fix_protocol", "FixProtocol")
     api.set_endpoint_protocol("ep1", "fix")
+
+    # api.accept_session("ep1", "s1")
+    # api.get_session_message("s1", "m1")
+    # api.process_message("e1", "m1", "m2")
+    # api.send_session_message("s1", "m2")
+
+    # api.set_endpoint_property("ep1", "auto_accept", "true")
+
+    # api.set_engine_property("e1", "auto_receive", "true")
+    # api.set_endpoint_property("ep1", "auto_receive", "true")
+    # api.set_session_property("s1", "auto_receive", "true")
+
+
 
     api.delete_engine("e1")
