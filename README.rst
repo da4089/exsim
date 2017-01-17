@@ -18,6 +18,22 @@ Introduction
 # Policy modules can be loaded for automatic message handling.
 # Basic matching engine will manage books, publish data, and match orders.
 
+
+Usage
+-----
+
+In a Python unittest module, you should import the exsim module, and
+create an instance of the API class.
+
+You can then load any additional (third-party) plugins before
+configuring and creating a server instance.  The server instance is
+created by forking the calling process, so any Python setup or
+environment variables, etc, that exist are inherited by the service.
+All subsequent interaction with the service uses IPC.
+
+Classes
+-------
+
 Endpoint
   A listening socket, attached to a matching engine, and configured
   with a protocol to encode and decode received messages.
@@ -35,6 +51,17 @@ Protocol
   The protocol can optionally handle some of the "mechanics" of the
   communication: sequence numbers, heartbeats, etc.  But actual
   trading messages are simply translated and handed off to the engine.
+
+Plugins
+-------
+
+The basic framework can be extended with new matching engine
+behaviours and protocol mappings using plugins: Python modules that
+provide derived classes specialising the default behaviours.
+
+Once imported, these modules can be registered with the framework
+(using a 'register' function), and are then available from the
+standard factory functions.
 
 
 # Milestone 1
@@ -63,7 +90,6 @@ Protocol
 # pricing stream, we need to have useful prices.  So that can either
 # be managed directly via the API, or could track an externally
 # sourced price stream.
-
 
 The service starts with a control port listening for the management
 protocol on a specified port.  The client API can connect to this

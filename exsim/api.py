@@ -1,9 +1,14 @@
 #! /usr/bin/env python
 
+import exsim
 import logging
+import os
 import pickle
+import signal
 import socket
 import struct
+import sys
+import time
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -17,11 +22,37 @@ class API:
         self._connected = False
         return
 
-    def connect(self, host, port):
+    def create_server(self):
+        port = 10101
+        self._child_pid = os.fork()
+        if self._child_pid == 0:
+            # Child
+            r = open("/dev/null", "r")
+            w = open("/dev/null", "w")
+
+            sys.stderr.close()
+            sys.stdout.close()
+            sys.stdin.close()
+
+            sys.stdin = r
+            sys.stdout = w
+            sys.stderr = w
+
+            server = exsim.Server(port)
+            server.run()
+            sys.exit(0)
+
+        time.sleep(1)
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.connect((host, int(port)))
+        self._socket.connect(('127.0.0.1', port))
         self._connected = True
-        logging.info("Connected: %s:%u" % (host, int(port)))
+        logging.info("Connected")
+        return
+
+    def delete_server(self):
+        os.kill(self._child_pid, signal.SIGINT)
+        pid, status = os.waitpid(self._child_pid, 0)
+        print pid, status
         return
 
     def create_engine(self, name):
@@ -171,7 +202,8 @@ class Message(object):
 
 if __name__ == "__main__":
     api = API()
-    api.connect("localhost", 10101)
+    api.create_server()
+
     api.create_engine("e1")
     api.create_endpoint("ep1", 10102)
     api.set_endpoint_engine("ep1", "e1")
@@ -192,3 +224,4 @@ if __name__ == "__main__":
 
 
     api.delete_engine("e1")
+    api.delete_server()

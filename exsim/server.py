@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class Server(object):
 
-    def __init__(self):
+    def __init__(self, port):
         self._engines = {}  # name: engine
         self._endpoints = {}  # name: endpoint
         self._protocols = {}  # name: protocol
@@ -31,7 +31,7 @@ class Server(object):
         # Management interface.
         self._mgmt_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._mgmt_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._mgmt_sock.bind(('0.0.0.0', 10101))
+        self._mgmt_sock.bind(('0.0.0.0', port))
         self._mgmt_sock.listen(5)
         return
 
