@@ -17,15 +17,24 @@ class API:
     """Client API."""
 
     def __init__(self):
-        self._socket = None
         self._buffer = ''
-        self._connected = False
+        self._servers = {}
         return
 
-    def create_server(self):
+    def delete(self):
+        for server in self._servers:
+            server.delete()
+        self._servers = {}
+        self._buffer = ''
+        return
+
+    def create_server(self, name):
+        # Create pipe to receive port from child.
+        pr, pw = os.pipe()
+
         port = 10101
-        self._child_pid = os.fork()
-        if self._child_pid == 0:
+        pid = os.fork()
+        if pid == 0:
             # Child
             r = open("/dev/null", "r")
             w = open("/dev/null", "w")
@@ -38,31 +47,38 @@ class API:
             sys.stdout = w
             sys.stderr = w
 
-            server = exsim.Server(port)
+            server = exsim.Server()
+
+            port = server.get_port()
+            os.close(pr)
+            pw = os.fdopen(pw, 'w')
+            pw.write(str(port))
+            pw.flush()
+            pw.close()
+
             server.run()
             sys.exit(0)
 
-        time.sleep(1)
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.connect(('127.0.0.1', port))
+        os.close(pw)
+        pr = os.fdopen(pr)
+        s = pr.read(10)
+        port = int(s)
+        pr.close()
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(('127.0.0.1', port))
         self._connected = True
         logging.info("Connected")
-        return
 
-    def delete_server(self):
-        os.kill(self._child_pid, signal.SIGINT)
-        pid, status = os.waitpid(self._child_pid, 0)
-        print pid, status
-        return
+        s = Server(self, name, sock, pid)
+        self._servers[name] = s
+        return s
 
-    def create_engine(self, name):
-        request = {'type': 'create_engine', 'name': name}
-        reply = {}
-        api._send(request, reply)
-
-        result = reply["result"]
-        if not result:
-            raise Exception(reply["message"])
+    def delete_server(self, name):
+        server = self._servers.get(name, None)
+        if not server:
+            raise KeyError("No such server: %s" % name)
+        server.delete()
         return
 
     def create_endpoint(self, name, port):
@@ -87,20 +103,6 @@ class API:
             raise Exception(reply["message"])
         return
 
-    def load_protocol(self, name, module, klass):
-        request = {"type": "load_protocol",
-                   "name": name,
-                   "module": module,
-                   "class": klass}
-        reply = {}
-        api._send(request, reply)
-
-        result = reply["result"]
-        if not result:
-            raise Exception(reply["message"])
-        return
-
-
     def set_endpoint_protocol(self, endpoint, protocol):
         request = {"type": "set_endpoint_protocol",
                    "endpoint": endpoint,
@@ -114,16 +116,53 @@ class API:
         return
 
 
-    def delete_engine(self, name):
-        request = {"type": "delete_engine", "name": name}
+class Server(object):
+    def __init__(self, api, name, sock, pid):
+        self._api = api
+        self._name = name
+
+        self._socket = sock
+        self._child_pid = pid
+        self._buffer = ''
+        return
+
+    def delete(self):
+        os.kill(self._child_pid, signal.SIGINT)
+        pid, status = os.waitpid(self._child_pid, 0)
+        return
+
+    def load_protocol(self, name, module, klass):
+        request = {"type": "load_protocol",
+                   "name": name,
+                   "module": module,
+                   "class": klass}
         reply = {}
-        api._send(request, reply)
+        self._send(request, reply)
+        
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
+
+    def create_engine(self, name):
+        request = {'type': 'create_engine', 'name': name}
+        reply = {}
+        self._send(request, reply)
 
         result = reply["result"]
         if not result:
             raise Exception(reply["message"])
         return
 
+    def delete_engine(self, name):
+        request = {"type": "delete_engine", "name": name}
+        reply = {}
+        self._send(request, reply)
+
+        result = reply["result"]
+        if not result:
+            raise Exception(reply["message"])
+        return
 
     def _send(self, request, reply):
 
@@ -160,15 +199,6 @@ class API:
             return True
 
 
-########################################################################
-
-class Server(object):
-    def __init__(self, name):
-        self.name = name
-        return
-
-    def load_protocol(self, name, module):
-        return
 
 class Engine(object):
     def __init__(self, name):
@@ -198,17 +228,21 @@ class Message(object):
 
 
 
+
+########################################################################
+
+
 ########################################################################
 
 if __name__ == "__main__":
     api = API()
-    api.create_server()
 
-    api.create_engine("e1")
-    api.create_endpoint("ep1", 10102)
-    api.set_endpoint_engine("ep1", "e1")
-    api.load_protocol("fix", "fix_protocol", "FixProtocol")
-    api.set_endpoint_protocol("ep1", "fix")
+    server = api.create_server("s1")
+    server.load_protocol("fix", "fix_protocol", "FixProtocol")
+
+    engine = server.create_engine("e1")
+    #ep1 = engine.create_endpoint("ep1", 10102)
+    #ep1.set_endpoint_protocol("fix")
 
     # api.accept_session("ep1", "s1")
     # api.get_session_message("s1", "m1")
@@ -223,5 +257,6 @@ if __name__ == "__main__":
 
 
 
-    api.delete_engine("e1")
-    api.delete_server()
+    server.delete_engine("e1")
+    api.delete_server("s1")
+
