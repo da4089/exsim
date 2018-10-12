@@ -1,0 +1,18 @@
+language: python
+matrix:
+  include:
+    - python: 3.7
+      dist: xenial
+      sudo: true
+install:
+- pip install -r requirements.txt
+- pip install coverage
+- pip install codacy-coverage
+script:
+ - cd test
+ - env PYTHONPATH=.. python -m unittest --verbose all
+ - cd ..
+ - env PYTHONPATH=. coverage run test/all.py
+ - coverage xml
+after_success:
+ - python-codacy-coverage -r coverage.xml
