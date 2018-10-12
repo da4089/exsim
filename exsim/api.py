@@ -32,10 +32,12 @@ class API:
         # Create pipe to receive port from child.
         pr, pw = os.pipe()
 
-        port = 10101
+        # Fork server process off API.
         pid = os.fork()
         if pid == 0:
-            # Child
+            # Child (server)
+
+            # Daemonise.
             r = open("/dev/null", "r")
             w = open("/dev/null", "w")
 
@@ -47,8 +49,10 @@ class API:
             sys.stdout = w
             sys.stderr = w
 
+            # Create main Server class.
             server = exsim.Server()
 
+            # Return control port number to parent process.
             port = server.get_port()
             os.close(pr)
             pw = os.fdopen(pw, 'w')
@@ -56,20 +60,26 @@ class API:
             pw.flush()
             pw.close()
 
+            # Enter server mainloop.
             server.run()
+
+            # Exit server process.
             sys.exit(0)
 
+        # Wait to receive server's control port number.
         os.close(pw)
         pr = os.fdopen(pr)
         s = pr.read(10)
         port = int(s)
         pr.close()
 
+        # Connect to server.
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(('127.0.0.1', port))
         self._connected = True
         logging.info("Connected")
 
+        # Create server proxy class in API.
         s = Server(self, name, sock, pid)
         self._servers[name] = s
         return s
