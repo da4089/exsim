@@ -26,7 +26,6 @@ import signal
 import socket
 import struct
 import sys
-import time
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -37,6 +36,7 @@ class API:
     def __init__(self):
         self._buffer = ''
         self._servers = {}
+        self._connected = False
         return
 
     def delete(self):
@@ -227,7 +227,6 @@ class Server(object):
             return True
 
 
-
 class Engine(object):
     def __init__(self, name):
         self.name = name
@@ -243,21 +242,19 @@ class Engine(object):
         self._messages[name] = msg
         return msg
 
+
 class Endpoint(object):
     def __init__(self, name):
         self.name = name
         return
 
+
 class Session(object):
     pass
 
+
 class Message(object):
     pass
-
-
-
-
-########################################################################
 
 
 ########################################################################

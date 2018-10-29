@@ -25,7 +25,7 @@ import struct
 logging.basicConfig(level=logging.DEBUG)
 
 
-class Manager(object):
+class Manager:
     """Server manager."""
 
     def __init__(self, sock, addr):
@@ -35,21 +35,17 @@ class Manager(object):
         self._buffer = ""
         return
 
-
     def set_server(self, server):
         self._server = server
         return
 
-
     def socket(self):
         return self._socket
-
 
     def close(self):
         self._socket.close()
         self._address = None
         return
-
 
     def readable(self):
         data = self._socket.recv(8192)
@@ -66,13 +62,11 @@ class Manager(object):
         self.dispatch(msg)
         return
 
-
     def send(self, msg):
         data = pickle.dumps(msg)
         header = struct.pack("<L", len(data))
         self._socket.sendall(header + data)
         return
-
 
     def parse_message(self):
         # Check we have a header.
@@ -96,7 +90,6 @@ class Manager(object):
 
         return msg
 
-
     def dispatch(self, message):
         """Handle a decoded management session message."""
 
@@ -111,7 +104,6 @@ class Manager(object):
         self.send(reply)
         return
 
-
     def set_error(self, reply, request_name, error):
         logging.info("Request '%s' failed: %s" % (request_name, error))
 
@@ -119,12 +111,10 @@ class Manager(object):
         reply["message"] = error
         return
 
-
     def set_success(self, reply, request_name):
         logging.info("Request '%s': succeeded" % request_name)
         reply["result"] = True
         return
-
 
     def check_parameters(self, request, reply, names):
         for name in names:
@@ -134,7 +124,6 @@ class Manager(object):
                                "Missing '%s' parameter" % name)
                 return False
         return True
-
 
     def handle_create_engine(self, request, reply):
         if not self.check_parameters(request, reply, ['name']):
@@ -146,7 +135,6 @@ class Manager(object):
             self.set_error(reply, "create_engine", e.message)
         return
 
-
     def handle_delete_engine(self, request, reply):
         if not self.check_parameters(request, reply, ['name']):
             return
@@ -156,7 +144,6 @@ class Manager(object):
         except Exception as e:
             self.set_error(reply, "delete_engine", e.message)
         return
-
 
     def handle_create_endpoint(self, request, reply):
         if not self.check_parameters(request, reply, ['name', 'port']):
@@ -168,7 +155,6 @@ class Manager(object):
             self.set_error(reply, "create_endpoint", e.message)
         return
 
-
     def handle_set_endpoint_engine(self, request, reply):
         if not self.check_parameters(request, reply, []):
             return
@@ -179,7 +165,6 @@ class Manager(object):
             self.set_error(reply, "set_endpoint_engine", e.message)
         return
 
-
     def handle_set_endpoint_protocol(self, request, reply):
         if not self.check_parameters(request, reply, ["endpoint", "protocol"]):
             return
@@ -189,7 +174,6 @@ class Manager(object):
         except Exception as e:
             self.set_error(reply, "set_endpoint_protocol", e.message)
         return
-
 
     def handle_load_protocol(self, request, reply):
         if not self.check_parameters(request, reply, ["name", "module", "class"]):

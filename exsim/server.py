@@ -22,10 +22,13 @@ import logging
 import select
 import socket
 import time
+import typing
 
 from .endpoint import Endpoint
 from .engine import Engine
 from .manager import Manager
+from .protocol import Protocol
+from .session import Session
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -34,16 +37,18 @@ logging.basicConfig(level=logging.DEBUG)
 class Server:
 
     def __init__(self):
-        self._engines = {}  # name: engine
-        self._endpoints = {}  # name: endpoint
-        self._protocols = {}  # name: protocol
+        """Constructor."""
 
-        self._session_socks = {}  # socket: session
-        self._manager_socks = {}  # socket: manager
-        self._endpoint_socks = {}  # socket: endpoint
+        self._engines: typing.Dict[str, Engine] = {}
+        self._endpoints: typing.Dict[str, Endpoint] = {}
+        self._protocols: typing.Dict[str, Protocol] = {}
 
-        self._is_running = True
-        self._timeouts = []
+        self._session_socks: typing.Dict[socket, Session] = {}
+        self._manager_socks: typing.Dict[socket, Manager] = {}
+        self._endpoint_socks: typing.Dict[socket, Endpoint] = {}
+
+        self._is_running: bool = True
+        self._timeouts: typing.List = []
 
         # Management interface.
         self._mgmt_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,7 +57,8 @@ class Server:
         self._mgmt_sock.listen(5)
         return
 
-    def get_port(self):
+    def get_port(self) -> int:
+        """Return integer port number for management socket."""
         _, port = self._mgmt_sock.getsockname()
         return port
 

@@ -56,27 +56,29 @@ DELETE_ENDPOINT_MESSAGE = "delete_endpoint"
 SET_ENDPOINT_PROPERTY_MESSAGE = "set_endpoint_property"
 
 
-class Message(object):
-    def __init__(self):
-        self.type = None
+class Message:
+    def __init__(self, msg_type: str=None):
+        self.type = msg_type
         return
 
 
 class LoginRequestMessage(Message):
     def __init__(self):
-        self.type = LOGIN_REQUEST_MESSAGE
+        super().__init__(LOGIN_REQUEST_MESSAGE)
         self.username = ''
         self.password = ''
         return
 
+
 class LoginAcceptedMessage(Message):
     def __init__(self):
-        self.type = LOGIN_ACCEPTED_MESSAGE
+        super().__init__(LOGIN_ACCEPTED_MESSAGE)
         return
+
 
 class NewOrderMessage(Message):
     def __init__(self):
-        self.type = NEW_ORDER_MESSAGE
+        super().__init__(NEW_ORDER_MESSAGE)
         self.symbol = ''
         self.order_type = ''
         self.quantity = 0
@@ -84,37 +86,38 @@ class NewOrderMessage(Message):
         return
 
 
-
-
 class CreateEngineMessage(Message):
     def __init__(self):
-        self.type = CREATE_ENGINE_MESSAGE
+        super().__init__(CREATE_ENGINE_MESSAGE)
         self.name = ''
         return
+
 
 class DeleteEngineMessage(Message):
     def __init__(self):
-        self.type = DELETE_ENGINE_MESSAGE
+        super().__init__(DELETE_ENGINE_MESSAGE)
         self.name = ''
         return
 
+
 class SetEnginePropertyMessage(Message):
     def __init__(self):
-        self.type = SET_ENGINE_PROPERTY_MESSAGE
+        super().__init__(SET_ENGINE_PROPERTY_MESSAGE)
         self.engine = ''
         self.name = ''
         self.value = None
         return
 
+
 class StartEngineMessage(Message):
     def __init__(self):
-        self.type = START_ENGINE_MESSAGE
+        super().__init__(START_ENGINE_MESSAGE)
         self.engine = ''
         return
+
 
 class StopEngineMessage(Message):
     def __init__(self):
-        self.type = STOP_ENGINE_MESSAGE
+        super().__init__(STOP_ENGINE_MESSAGE)
         self.engine = ''
         return
-

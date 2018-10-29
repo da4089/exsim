@@ -20,10 +20,14 @@
 
 from exsim.message import *
 
+
 class Engine(object):
     """A matching engine."""
 
-    def __init__(self, name):
+    def __init__(self, name: str):
+        """Constructor.
+
+        :param name: Matching engine name."""
         self.name = name
         self.markets = {}  # symbol: book
         return
@@ -55,7 +59,6 @@ class Engine(object):
             self.log("Bad message type:", t)
             return
 
-
     def handle_login(self, message):
         return
 
@@ -86,11 +89,8 @@ class Engine(object):
         """Process withdrawal of a quote."""
         return
 
-
-
     def publish_message(self, message):
         return
-
 
     def send_login_ack(self, message):
         """Acknowledge successful login."""

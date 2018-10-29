@@ -29,7 +29,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 class Endpoint(object):
 
-    def __init__(self, name, port):
+    def __init__(self, name: str, port: int):
+        """Constructor.
+
+        :param name: Name of listening endpoint.
+        :param port: TCP port number on which to accept connections."""
         self._name = name
         self._engine = None
         self._protocol = None
@@ -41,22 +45,31 @@ class Endpoint(object):
         return
 
     def socket(self):
+        """Return listening socket."""
         return self._socket
 
     def set_engine(self, engine):
+        """Set matching engine for this endpoint.
+
+        :param engine: Matching engine."""
         self._engine = engine
         return
 
     def set_protocol(self, protocol):
+        """Set protocol for this endpoint.
+
+        :param protocol: FIXME"""
         self._protocol = protocol
         return
 
     def close(self):
+        """Stop listening for connections on this endpoint."""
         self._socket.close()
         self._socket = None
         return
 
-    def accept(self):
+    def accept(self) -> Session:
+        """Accept an inbound connection to this endpoint."""
         client_sock, client_addr = self._socket.accept()
         session = Session(client_sock, client_addr)
         session.set_engine(self._engine)
