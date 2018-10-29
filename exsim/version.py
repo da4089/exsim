@@ -18,9 +18,4 @@
 #
 ########################################################################
 
-from .engine import Engine
-from .endpoint import Endpoint
-from .manager import Manager
-from .server import Server
-from .session import Session
-from .version import VERSION
+VERSION = "0.0.2"

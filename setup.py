@@ -19,13 +19,14 @@
 ########################################################################
 
 from setuptools import setup
+from exsim.version import VERSION
 
 
 with open("README.rst") as readme:
     long_description = readme.read()
 
 setup(name="exsim",
-      version="0.0.1",
+      version=VERSION,
       description="Simple exchange simulator",
       long_description=long_description,
       url="https://github.com/da4089/exsim",
