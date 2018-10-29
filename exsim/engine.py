@@ -59,12 +59,6 @@ class Engine(object):
             self.log("Bad message type:", t)
             return
 
-    def handle_login(self, message):
-        return
-
-    def handle_logout(self, message):
-        return
-
     def handle_new_order(self, message):
         """Process new order."""
         return
