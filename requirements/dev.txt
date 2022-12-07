@@ -1,0 +1,6 @@
+coverage
+setuptools
+sphinx
+twine
+wheel
+-r run.txt
