@@ -26,70 +26,81 @@ import signal
 import socket
 import struct
 import sys
+import typing
+
 
 logging.basicConfig(level=logging.DEBUG)
 
 
 class API:
-    """Client API."""
+    """Exchange Simulator Client API."""
 
     def __init__(self):
-        self._buffer = ''
+        """Constructor."""
+        self._buffer = b''
         self._servers = {}
         self._connected = False
         return
 
     def delete(self):
-        for server in self._servers:
-            server.delete()
+        """Clean up this API instance."""
+        for server_proxy in self._servers:
+            server_proxy.delete()
         self._servers = {}
-        self._buffer = ''
+        self._buffer = b''
         return
 
-    def create_server(self, name):
-        # Create pipe to receive port from child.
-        pr, pw = os.pipe()
+    def create_server(self, name: str = 'default'):
+        """Create an Exchange Simulator server instance.
+
+        :param name: String name to identify this server
+
+        Normally, only one server instance is required, but when that's
+        not the case, the name is used to distinguish them."""
+
+        # Create pipe to receive TCP port number from child.
+        from_api_fd, to_api_fd = os.pipe()
 
         # Fork server process off API.
         pid = os.fork()
         if pid == 0:
             # Child (server)
 
-            # Daemonise.
-            r = open("/dev/null", "r")
-            w = open("/dev/null", "w")
+            # Make child process more daemon-like.
+            from_devnull = open("/dev/null", "r")
+            to_devnull = open("/dev/null", "w")
 
             sys.stderr.close()
             sys.stdout.close()
             sys.stdin.close()
 
-            sys.stdin = r
-            sys.stdout = w
-            sys.stderr = w
+            sys.stdin = from_devnull
+            sys.stdout = to_devnull
+            sys.stderr = to_devnull
 
-            # Create main Server class.
-            server = exsim.Server()
+            # Create main Server instance (not the API wrapper).
+            sim_server = exsim.Server()
 
             # Return control port number to parent process.
-            port = server.get_port()
-            os.close(pr)
-            pw = os.fdopen(pw, 'w')
-            pw.write(str(port))
-            pw.flush()
-            pw.close()
+            port = sim_server.get_port()
+            os.close(from_api_fd)
+            to_api = os.fdopen(to_api_fd, 'w')
+            to_api.write(str(port))
+            to_api.flush()
+            to_api.close()
 
             # Enter server mainloop.
-            server.run()
+            sim_server.run()
 
             # Exit server process.
             sys.exit(0)
 
         # Wait to receive server's control port number.
-        os.close(pw)
-        pr = os.fdopen(pr)
-        s = pr.read(10)
+        os.close(to_api_fd)
+        from_api = os.fdopen(from_api_fd)
+        s = from_api.read(10)
         port = int(s)
-        pr.close()
+        from_api.close()
 
         # Connect to server.
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -98,15 +109,15 @@ class API:
         logging.info("Connected")
 
         # Create server proxy class in API.
-        s = Server(self, name, sock, pid)
-        self._servers[name] = s
-        return s
+        server_proxy = Server(self, name, sock, pid)
+        self._servers[name] = server_proxy
+        return server_proxy
 
     def delete_server(self, name):
-        server = self._servers.get(name, None)
-        if not server:
+        server_proxy = self._servers.get(name, None)
+        if not server_proxy:
             raise KeyError("No such server: %s" % name)
-        server.delete()
+        server_proxy.delete()
         return
 
     def create_endpoint(self, name, port):
@@ -144,19 +155,28 @@ class API:
         return
 
 
-class Server(object):
-    def __init__(self, api, name, sock, pid):
+class Server:
+    """Proxy for external exchange simulator server process."""
+    def __init__(self, api: API, name: str, sock: socket.socket, pid: int):
+        """Constructor.
+
+        :param api: Reference to owning API.
+        :param name: String name to identify this server
+        :param sock: Management socket connected to server
+        :param pid: Process identifier for simulator process."""
         self._api = api
         self._name = name
-
         self._socket = sock
         self._child_pid = pid
-        self._buffer = ''
+
+        self._buffer = b''
         return
 
     def delete(self):
+        """Destroy this proxy wrapper, and its managed server process."""
         os.kill(self._child_pid, signal.SIGINT)
         pid, status = os.waitpid(self._child_pid, 0)
+        # FIXME: need to have a SIGKILL after a bit here?
         return
 
     def load_protocol(self, name, module, klass):
@@ -172,7 +192,10 @@ class Server(object):
             raise Exception(reply["message"])
         return
 
-    def create_engine(self, name):
+    def create_engine(self, name: str):
+        """Request server to create a new simulated matching engine.
+
+        :param name: String name to identify the matching engine."""
         request = {'type': 'create_engine', 'name': name}
         reply = {}
         self._send(request, reply)
@@ -180,9 +203,13 @@ class Server(object):
         result = reply["result"]
         if not result:
             raise Exception(reply["message"])
-        return
+
+        return Engine(self, name)
 
     def delete_engine(self, name):
+        """Request server to delete a simulated matching engine.
+
+        :param name: String name to identify the matching engine."""
         request = {"type": "delete_engine", "name": name}
         reply = {}
         self._send(request, reply)
@@ -193,17 +220,22 @@ class Server(object):
         return
 
     def _send(self, request, reply):
+        """(Internal) Make RPC to server process.
+
+        :param request: Request dictionary.
+        :param reply: Empty dictionary to be populated with reply message."""
 
         # Send request.
         body = pickle.dumps(request)
         header = struct.pack("<L", len(body))
         self._socket.sendall(header + body)
-        logging.debug("Sent")
+        logging.debug(f"Sent request to server {self._name}")
 
         # Wait for reply.
         while True:
             data = self._socket.recv(8192)
-            logging.debug("Received")
+            logging.debug(f"Received {len(data)} bytes "
+                          f"from server '{self._name}'")
             if len(data) == 0:
                 self._connected = False
                 # FIXME: set error in reply
@@ -227,33 +259,34 @@ class Server(object):
             return True
 
 
-class Engine(object):
-    def __init__(self, name):
+class Engine:
+    def __init__(self, server: Server, name: str):
+        """Constructor.
+
+        :param server: Reference to owning server
+        :param name: String name to identify this engine"""
+        self.server = server
         self.name = name
+
+        self.endpoints: typing.Dict[str, Endpoint] = {}
         return
 
-    def create_endpoint(self, name):
+    def create_endpoint(self, name: str):
+        """Create an endpoint on this engine.
+
+        :param name: String name to identify this endpoint"""
         ep = Endpoint(name)
-        self._endpoints[name] = ep
+        self.endpoints[name] = ep
         return ep
 
-    def create_message(self, name):
-        msg = Message(name)
-        self._messages[name] = msg
-        return msg
 
-
-class Endpoint(object):
+class Endpoint:
     def __init__(self, name):
         self.name = name
         return
 
 
-class Session(object):
-    pass
-
-
-class Message(object):
+class Session:
     pass
 
 

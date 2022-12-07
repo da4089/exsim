@@ -32,7 +32,7 @@ class Manager:
         self._socket = sock
         self._address = addr
         self._server = None
-        self._buffer = ""
+        self._buffer = b""
         return
 
     def set_server(self, server):
@@ -77,7 +77,7 @@ class Manager:
         # Unpack header, and sanity check.
         l = struct.unpack("<L", self._buffer[:4])[0]
         if l > 65535:
-            logging.debug("Manager buffer > 64KB (%d)" % l)
+            logging.debug(f"Manager buffer > 64KB {l}")
             return None
 
         # Check we have the full packet.
@@ -94,7 +94,7 @@ class Manager:
         """Handle a decoded management session message."""
 
         if not hasattr(self, "handle_" + message["type"]):
-            logging.warning("No handler for '%s' request" % message["type"])
+            logging.warning(f"No handler for '{message['type']}' request")
             # FIXME: create error reply.
             return
 
@@ -105,14 +105,14 @@ class Manager:
         return
 
     def set_error(self, reply, request_name, error):
-        logging.info("Request '%s' failed: %s" % (request_name, error))
+        logging.info(f"Request '{request_name}' failed: {error}")
 
         reply["result"] = False
         reply["message"] = error
         return
 
     def set_success(self, reply, request_name):
-        logging.info("Request '%s': succeeded" % request_name)
+        logging.info(f"Request '{request_name}': succeeded")
         reply["result"] = True
         return
 
@@ -121,7 +121,7 @@ class Manager:
             if name not in request:
                 self.set_error(reply,
                                request["type"],
-                               "Missing '%s' parameter" % name)
+                               f"Missing '{name}' parameter")
                 return False
         return True
 
