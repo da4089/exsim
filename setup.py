@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,8 +30,8 @@ setup(name="exsim",
       description="Simple exchange simulator",
       long_description=long_description,
       url="https://github.com/da4089/exsim",
-      author="David Arnold",
-      author_email="d+exsim@0x1.org",
+      author="zeroXone",
+      author_email="suppoer@zeroxone.com",
       license="GPLv3",
       packages=["exsim"],
       classifiers=[
@@ -45,6 +45,9 @@ setup(name="exsim",
         'Programming Language :: Python :: 3 :: Only',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         ],
       )
 

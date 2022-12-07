@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,11 +30,43 @@ class Engine(object):
         :param name: Matching engine name."""
         self.name = name
         self.markets = {}  # symbol: book
+
+        self._clients = {}
+        self._drops = {}
+        self._prices = {}
+        self._trades = {}
+
+
         return
 
     def delete(self):
         # Clean up.
         return
+
+    def attach(self, name):
+        """Connect a client session to this engine.
+
+        This identifies a source of orders, and is used to select
+        order flow for drop copy subscribers."""
+        pass
+
+    def subscribe_drops(self, names):
+        """Request delivery of drop copies for named client sessions."""
+        pass
+
+    def subscribe_prices(self):
+        """Request delivery of pricing.
+
+        Depending on the engine type, this can be either quotes or
+        limit order prices."""
+        pass
+
+    def subscribe_trades(self):
+        """Request delivery of trade reports.
+
+        This is not a drop copy, but rather the unattributed time and
+        sales stream from the matching engine."""
+        pass
 
     def handle_trade_flow(self, message):
 

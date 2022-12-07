@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,11 +21,12 @@
 import datetime
 import simplefix
 import socket
+import sys
 
 
 def main():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(("127.0.0.1", 10102))
+    s.connect(("127.0.0.1", int(sys.argv[1])))
 
     p = simplefix.FixParser()
 
@@ -36,7 +37,7 @@ def main():
     m.append_pair(49, "CLIENT")
     m.append_pair(56, "SERVER")
     m.append_pair(52, datetime.datetime.utcnow().isoformat('-')[:-3])
-    m.append_pair(98, 0) # No encrytion
+    m.append_pair(98, 0)  # No encryption
     m.append_pair(108, 30)
 
     s.sendall(m.encode())
@@ -48,7 +49,7 @@ def main():
         if r:
             break
 
-    print m.encode().replace(simplefix.SOH, "|")
+    print(m.encode().replace("\x01", "|"))
 
 
 if __name__ == "__main__":

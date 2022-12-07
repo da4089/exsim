@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -126,61 +126,70 @@ class Manager:
         return True
 
     def handle_create_engine(self, request, reply):
-        if not self.check_parameters(request, reply, ['name']):
+        if not self.check_parameters(request, reply,
+                                     ['name']):
             return
         try:
             self._server.create_engine(request["name"])
             self.set_success(reply, "create_engine")
         except Exception as e:
-            self.set_error(reply, "create_engine", e.message)
+            self.set_error(reply, "create_engine", str(e.args))
         return
 
     def handle_delete_engine(self, request, reply):
-        if not self.check_parameters(request, reply, ['name']):
+        if not self.check_parameters(request, reply,
+                                     ['name']):
             return
         try:
             self._server.delete_engine(request["name"])
             self.set_success(reply, "delete_engine")
         except Exception as e:
-            self.set_error(reply, "delete_engine", e.message)
+            self.set_error(reply, "delete_engine", str(e.args))
         return
 
     def handle_create_endpoint(self, request, reply):
-        if not self.check_parameters(request, reply, ['name', 'port']):
+        if not self.check_parameters(request, reply,
+                                     ['name', 'port']):
             return
         try:
             self._server.create_endpoint(request["name"], request["port"])
             self.set_success(reply, "create_endpoint")
         except Exception as e:
-            self.set_error(reply, "create_endpoint", e.message)
+            self.set_error(reply, "create_endpoint", str(e.args))
         return
 
     def handle_set_endpoint_engine(self, request, reply):
         if not self.check_parameters(request, reply, []):
             return
         try:
-            self._server.set_endpoint_engine(request["endpoint"], request["engine"])
+            self._server.set_endpoint_engine(request["endpoint"],
+                                             request["engine"])
             self.set_success(reply, "set_endpoint_engine")
         except Exception as e:
-            self.set_error(reply, "set_endpoint_engine", e.message)
+            self.set_error(reply, "set_endpoint_engine", str(e.args))
         return
 
     def handle_set_endpoint_protocol(self, request, reply):
-        if not self.check_parameters(request, reply, ["endpoint", "protocol"]):
+        if not self.check_parameters(request, reply,
+                                     ["endpoint", "protocol"]):
             return
         try:
-            self._server.set_endpoint_protocol(request["endpoint"], request["protocol"])
+            self._server.set_endpoint_protocol(request["endpoint"],
+                                               request["protocol"])
             self.set_success(reply, "set_endpoint_protocol")
         except Exception as e:
-            self.set_error(reply, "set_endpoint_protocol", e.message)
+            self.set_error(reply, "set_endpoint_protocol", str(e.args))
         return
 
     def handle_load_protocol(self, request, reply):
-        if not self.check_parameters(request, reply, ["name", "module", "class"]):
+        if not self.check_parameters(request, reply,
+                                     ["name", "module", "class"]):
             return
         try:
-            self._server.load_protocol(request["name"], request["module"], request["class"])
+            self._server.load_protocol(request["name"],
+                                       request["module"],
+                                       request["class"])
             self.set_success(reply, "load_protocol")
         except Exception as e:
-            self.set_error(reply, "load_protocol", e.message)
+            self.set_error(reply, "load_protocol", str(e.args))
         return

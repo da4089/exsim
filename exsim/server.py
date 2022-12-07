@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ class Server:
         _, port = self._mgmt_sock.getsockname()
         return port
 
-    def authenticate(self, username, password, source_addreess):
+    def authenticate(self, username, password, source_address):
         return
 
     def create_manager(self, sock):
@@ -205,10 +205,10 @@ class Server:
             return KeyError("Protocol '%s' already exists" % name)
 
         # FIXME: sanitise!
-        protocol = None
-        exec("from exsim import %s" % module_name)
-        exec("protocol = %s.%s" % (module_name, class_name))
-        self._protocols[name] = protocol
+        d = {}
+        exec("from exsim import %s" % module_name, globals(), d)
+        exec("protocol = %s.%s" % (module_name, class_name), globals(), d)
+        self._protocols[name] = d["protocol"]
         logging.info("Loaded protocol {0}".format(name))
         return
 
@@ -233,7 +233,7 @@ class Server:
         endpoint.set_engine(engine)
         return
 
-    def set_endpoint_protocol(self, endpoint_name, protocol_name):
+    def set_endpoint_protocol(self, endpoint_name: str, protocol_name: str):
         if endpoint_name not in self._endpoints:
             return KeyError("No such endpoint: '%s'" % endpoint_name)
 

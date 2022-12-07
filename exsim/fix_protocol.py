@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,22 +21,19 @@
 import datetime
 import logging
 import simplefix
-import time
 
-from protocol import Protocol
+from .protocol import Protocol
 
 
 class FixProtocol(Protocol):
     """A basic FIX protocol module."""
 
     def __init__(self, session):
-        # Owning session.
-        self._session = session
+        super().__init__(session)
 
         # Reset protocol state.
         self.reset()
         return
-
 
     def reset(self):
         """Reset the parser state.
@@ -63,14 +60,11 @@ class FixProtocol(Protocol):
 
         # Outstanding test request identifiers.
         self._test_requests = {}
-
         return
-
 
     def receive(self, buf):
         """Process a byte buffer received from the session."""
         return self._parser.append_buffer(buf)
-
 
     def get_message(self):
         fix_message =  self._parser.get_message()
@@ -103,7 +97,6 @@ class FixProtocol(Protocol):
 
         return
 
-
     def receive_fix_logon(self, fix_message):
         # Save CompIDs
         # Set heartbeat interval
@@ -127,8 +120,6 @@ class FixProtocol(Protocol):
     def receive_fix_cancel_request(self, fix_message):
         return
 
-
-
     def send_login_ack(self, message):
 
         # In FIX, login acknowledgement is sent with a Logon()
@@ -151,7 +142,6 @@ class FixProtocol(Protocol):
         logging.info("Sent FIX logon (login_ack)")
         return
 
-
     def send_order_ack(self, message):
         return
 
@@ -170,7 +160,6 @@ class FixProtocol(Protocol):
     def send_replace_ack(self, message):
         return
 
-
     def send_heartbeat(self, test_request_id = None):
 
         fix = simplefix.FixMessage()
@@ -185,8 +174,6 @@ class FixProtocol(Protocol):
         self._session.send(fix.encode())
         logging.info("Sent FIX heartbeat" + " id = [%s]" % test_request_id if test_request_id else "")
         return
-
-
 
     def get_fix_time(self):
         return datetime.datetime.utcnow().isoformat('-')[:-3]

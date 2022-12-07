@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,8 +18,18 @@
 #
 ########################################################################
 
+# One or more Protocol modules are associated with a Session.  Incoming
+# bytes are passed to the protocol modules for decoding, resulting in
+# calls to the matching engine.  Events on the matching engine will
+# trigger a callback to the protocol, which can in turn send a message
+# via the associated Session.
+#
+# The standard matching engine supports three protocol types: market
+# data, order entry, and drop copy.  A given protocol implementation
+# can support one or more of these roles.
 
-class Protocol(object):
+
+class Protocol:
     """A protocol module."""
 
     def __init__(self, session):

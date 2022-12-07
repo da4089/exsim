@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2018, ZeroXOne.
+# Copyright (C) 2016-2022, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -166,7 +166,7 @@ class Server(object):
                    "class": klass}
         reply = {}
         self._send(request, reply)
-        
+
         result = reply["result"]
         if not result:
             raise Exception(reply["message"])
