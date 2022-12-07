@@ -25,13 +25,13 @@ from exsim.version import VERSION
 with open("README.rst") as readme:
     long_description = readme.read()
 
-setup(name="exsim",
+setup(name="python-exsim",
       version=VERSION,
       description="Simple exchange simulator",
       long_description=long_description,
       url="https://github.com/da4089/exsim",
       author="zeroXone",
-      author_email="suppoer@zeroxone.com",
+      author_email="support@zeroxone.com",
       license="GPLv3",
       packages=["exsim"],
       classifiers=[
@@ -43,11 +43,11 @@ setup(name="exsim",
         'Operating System :: OS Independent',
         'Environment :: No Input/Output (Daemon)',
         'Programming Language :: Python :: 3 :: Only',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         ],
       )
 

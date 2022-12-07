@@ -3,8 +3,8 @@
 exsim
 =====
 
-|  |Build Status|  |Docs|  |Code Health|  |Coverage|  |PyPI|  |Python|
-
+|  |Build Status|  |Docs|  |Coverage|  |PyPI|  |Python|
+|  |PePY Downloads|  |PePY Monthly|
 
 Introduction
 ------------
@@ -222,21 +222,24 @@ source code, and please open an `issue
 and bugs.
 
 
-.. |Build Status| image:: https://travis-ci.org/da4089/exsim.svg?branch=master
-    :target: https://travis-ci.org/da4089/exsim
+.. |Build Status| image:: https://github.com/da4089/exsim/actions/workflows/build.yml/badge.svg?event=push
+    :target: https://github.com/da4089/exsim/actions/workflows/build.yml
     :alt: Build status
-.. |Docs| image:: https://readthedocs.org/projects/fixtool/badge/?version=latest
-    :target: http://fixtool.readthedocs.io/en/latest/
+.. |Docs| image:: https://readthedocs.org/projects/exsim/badge/?version=latest
+    :target: http://exsim.readthedocs.io/en/latest/
     :alt: Docs
-.. |Code Health| image:: https://api.codacy.com/project/badge/Grade/d277a99c90ea40a0a4586125fb3bca61
-    :target: https://app.codacy.com/app/da4089/exsim/dashboard
-    :alt: Code Health
-.. |Coverage| image:: https://api.codacy.com/project/badge/Coverage/d277a99c90ea40a0a4586125fb3bca61
-    :target: https://app.codacy.com/app/da4089/exsim/dashboard
+.. |Coverage| image:: https://coveralls.io/repos/github/da4089/exsim/badge.svg?branch=master
+    :target: https://coveralls.io/github/da4089/exsim?branch=master
     :alt: Coverage
-.. |PyPI| image:: https://img.shields.io/pypi/v/exsim.svg
-    :target: https://pypi.python.org/pypi/exsim
+.. |PyPI| image:: https://img.shields.io/pypi/v/python-exsim.svg
+    :target: https://pypi.python.org/pypi/python-exsim
     :alt: PyPI
-.. |Python| image:: https://img.shields.io/pypi/pyversions/exsim.svg
-    :target: https://pypi.python.org/pypi/exsim
+.. |Python| image:: https://img.shields.io/pypi/pyversions/python-exsim.svg
+    :target: https://pypi.python.org/pypi/python-exsim
     :alt: Python
+.. |PePY Downloads| image:: https://pepy.tech/badge/exsim
+    :target: https://pepy.tech/project/exsim
+    :alt: PyPI Downloads
+.. |PePY Monthly| image:: https://pepy.tech/badge/exsim/month
+    :target: https://pepy.tech/project/exsim
+    :alt: PyPI Monthly Downloads
