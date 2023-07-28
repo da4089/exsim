@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Exchange Simulator'
-copyright = '2022, zeroXone'
+copyright = '2023, zeroXone'
 author = 'zeroXone'
 
 # -- General configuration ---------------------------------------------------

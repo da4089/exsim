@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2023, zeroXone.
+# Copyright (C) 2022-2023, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,9 +18,18 @@
 #
 ########################################################################
 
-class Book:
-    """A market for a tradeable thing."""
+import pytest
 
-    def __init__(self):
-        self.symbol = ''
-        return
+import exsim
+import exsim.api
+
+
+def test_api_construct_destruct():
+    api = exsim.api.API()
+    api.delete()
+
+
+def test_api_server():
+    api = exsim.api.API()
+    api.create_server('s1')
+    api.delete_server('s1')

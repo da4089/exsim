@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
-# Copyright (C) 2016-2022, zeroXone.
+# Copyright (C) 2016-2023, zeroXone.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -318,4 +318,3 @@ if __name__ == "__main__":
 
     server.delete_engine("e1")
     api.delete_server("s1")
-
