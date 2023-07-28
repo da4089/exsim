@@ -29,7 +29,7 @@ import sys
 import typing
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(filename="xs.log", level=logging.DEBUG)
 
 
 class API:
@@ -70,9 +70,10 @@ class API:
             from_devnull = open("/dev/null", "r")
             to_devnull = open("/dev/null", "w")
 
-            sys.stderr.close()
-            sys.stdout.close()
-            sys.stdin.close()
+            # FIXME: closing these gets me a crash in pytest, writing to a closed file.
+            #sys.stderr.close()
+            #sys.stdout.close()
+            #sys.stdin.close()
 
             sys.stdin = from_devnull
             sys.stdout = to_devnull
@@ -114,9 +115,9 @@ class API:
         return server_proxy
 
     def delete_server(self, name):
-        server_proxy = self._servers.get(name, None)
+        server_proxy = self._servers.get(name)
         if not server_proxy:
-            raise KeyError("No such server: %s" % name)
+            raise KeyError(f"No such server: '{name}'")
         server_proxy.delete()
         return
 

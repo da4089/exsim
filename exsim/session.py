@@ -19,41 +19,43 @@
 ########################################################################
 
 import logging
-
-
-logging.basicConfig(level=logging.DEBUG)
+import socket
 
 
 class Session:
+    """
+    A Session represents an:
+    - An active client connection, eg. a TCP session
+    - A Protocol instance, and
+    """
 
-    def __init__(self, sock, addr):
+    def __init__(self, sock: socket.socket, addr, endpoint: 'Endpoint'):
         self._socket = sock
         self._address = addr
+        self._endpoint = endpoint
 
-        self._gateway = None
-        self._protocol = None
-        self._engine = None
+        self._protocol = self._endpoint.protocol()
+        self._engine = self._endpoint.engine()
         return
 
     def socket(self):
+        """Return reference to the Session's socket."""
         return self._socket
 
     def address(self):
+        """Return reference to the Session's address."""
         return self._address
 
-    def set_gateway(self, gateway):
-        self._gateway = gateway
-        return
+    def engine(self):
+        """Return reference to Session's Engine."""
+        return self._engine
 
-    def set_engine(self, engine):
-        self._engine = engine
-        return
-
-    def set_protocol(self, protocol):
-        self._protocol = protocol(self)
-        return
+    def protocol(self):
+        """Return reference to Session's Protocol."""
+        return self._protocol
 
     def close(self):
+        """Close this session."""
         self._socket.close()
         self._address = None
         return
@@ -64,8 +66,11 @@ class Session:
             self._gateway.session_closed(self)
             return
 
-        self._protocol.receive(data)
+        message = self._protocol.receive(data)
+        if message:
+            self._engine.deliver(message)
         return
 
-    def send(self, data):
+    def send(self, data: bytes):
+        """Send the supplied data to the session's peer."""
         return self._socket.sendall(data)

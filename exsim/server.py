@@ -30,14 +30,19 @@ from .manager import Manager
 from .protocol import Protocol
 from .session import Session
 
+# FIXME: this should be loaded as a plugin
+from .default_engine import DefaultEngine
 
-logging.basicConfig(level=logging.DEBUG)
+
+logging.basicConfig(filename="xs.log", level=logging.DEBUG)
 
 
 class Server:
 
     def __init__(self):
         """Constructor."""
+
+        self._engine_types: typing.Dict[str, type(Engine)] = {}
 
         self._engines: typing.Dict[str, Engine] = {}
         self._endpoints: typing.Dict[str, Endpoint] = {}
@@ -87,7 +92,6 @@ class Server:
         endpoint = self._endpoint_socks[sock]
         session = endpoint.accept()
         self._session_socks[session.socket()] = session
-        session.set_gateway(self)
 
         logging.info("New session %d from %s"
                      % (session.socket().fileno(), str(session.address())))
@@ -161,13 +165,35 @@ class Server:
         self._timeouts.remove(t)
         return
 
-    def create_engine(self, name):
-        if name in self._engines:
-            raise KeyError("Engine '%s' already exists" % name)
+    def load_engine(self, name, module_name, class_name):
+        """Load a protocol plugin.
 
-        engine = Engine(name)
-        self._engines[name] = engine
+        :param name: String name for this engine.
+        :param module_name: String name for the module file.
+        :param class_name: String name for the engine class."""
+
+        if name in self._engine_types:
+            return KeyError(f"Engine type '{name}' already loaded")
+
+        # FIXME: sanitize!
+        d = {}
+        exec(f"from exsim import {module_name}", globals(), d)
+        exec(f"engine = {module_name}.{class_name}", globals(), d)
+        self._engine_types[name] = d["engine"]
+        logging.info(f"Loaded engine type '{name}'")
         return
+
+    def create_engine(self, name: str, engine_type: str):
+        if name in self._engines:
+            raise KeyError(f"Engine '{name}' already exists")
+
+        if engine_type not in self._engine_types:
+            raise KeyError(f"Engine type '{engine_type}' not leaded")
+
+        # FIXME: need to lookup the engine type name here
+        engine = self._engine_types[engine_type](name)
+        self._engines[name] = engine
+        return engine
 
     def delete_engine(self, name):
         if name not in self._engines:
@@ -201,48 +227,43 @@ class Server:
         return
 
     def load_protocol(self, name, module_name, class_name):
+        """Load a protocol plugin.
+
+        :param name: String name for this protocol.
+        :param module_name: String name for the module file.
+        :param class_name: String name for the protocol class."""
+
         if name in self._protocols:
-            return KeyError("Protocol '%s' already exists" % name)
+            return KeyError(f"Protocol '{name}' already loaded")
 
         # FIXME: sanitise!
         d = {}
-        exec("from exsim import %s" % module_name, globals(), d)
-        exec("protocol = %s.%s" % (module_name, class_name), globals(), d)
+        exec(f"from exsim import {module_name}", globals(), d)
+        exec(f"protocol = {module_name}.{class_name}", globals(), d)
         self._protocols[name] = d["protocol"]
-        logging.info("Loaded protocol {0}".format(name))
+        logging.info(f"Loaded protocol {name}")
         return
 
-    def create_endpoint(self, name, port):
+    def create_endpoint(self,
+                        name: str,
+                        port: int,
+                        protocol_name: str,
+                        engine_name: str):
+        """Create a new Endpoint, listening for client connections."""
         if name in self._endpoints:
-            return KeyError("Endpoint '%s' already exists" % name)
+            return KeyError(f"Endpoint '{name}' already exists")
 
-        endpoint = Endpoint(name, port)
+        protocol = self._protocols.get(protocol_name)
+        if not protocol:
+            return KeyError(f"Protocol '{protocol_name}' not found")
+
+        engine = self._engines.get(engine_name)
+        if not engine:
+            return KeyError(f"Engine '{engine_name}' not found")
+
+        endpoint = Endpoint(name, port, protocol, engine)
         self._endpoints[name] = endpoint
         self._endpoint_socks[endpoint.socket()] = endpoint
-        return
-
-    def set_endpoint_engine(self, endpoint_name, engine_name):
-        if endpoint_name not in self._endpoints:
-            return KeyError("No such endpoint: '%s'" % endpoint_name)
-
-        if engine_name not in self._engines:
-            raise KeyError("No such engine: '%s'" % engine_name)
-
-        endpoint = self._endpoints[endpoint_name]
-        engine = self._engines[engine_name]
-        endpoint.set_engine(engine)
-        return
-
-    def set_endpoint_protocol(self, endpoint_name: str, protocol_name: str):
-        if endpoint_name not in self._endpoints:
-            return KeyError("No such endpoint: '%s'" % endpoint_name)
-
-        if protocol_name not in self._protocols:
-            raise KeyError("No such protocol: '%s'" % protocol_name)
-
-        endpoint = self._endpoints[endpoint_name]
-        protocol = self._protocols[protocol_name]
-        endpoint.set_protocol(protocol)
         return
 
     def set_endpoint_property(self, name, value):

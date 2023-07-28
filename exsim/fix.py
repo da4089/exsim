@@ -26,8 +26,8 @@ import time
 
 from fix_protocol import FixParser, FixMessage, print_fix
 
-logging.basicConfig(level=logging.DEBUG)
 
+logging.basicConfig(filename="xs.log", level=logging.DEBUG)
 
 
 class Session(object):

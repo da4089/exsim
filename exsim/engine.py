@@ -18,142 +18,28 @@
 #
 ########################################################################
 
-from exsim.message import *
+from .session import Session
 
 
-class Engine(object):
-    """A matching engine."""
+class Engine:
+    """Base class for engine implementation."""
 
     def __init__(self, name: str):
         """Constructor.
 
-        :param name: Matching engine name."""
-        self.name = name
-        self.markets = {}  # symbol: book
+        :param name: String name for this engine."""
+        self._name = name
 
-        self._clients = {}
-        self._drops = {}
-        self._prices = {}
-        self._trades = {}
-
-
+        self._sessions = []
         return
 
-    def delete(self):
-        # Clean up.
+    def attach_session(self, session: Session):
+        """Attach a Session to this Engine."""
+
+        self._sessions.append(session)
         return
 
-    def attach(self, name):
-        """Connect a client session to this engine.
-
-        This identifies a source of orders, and is used to select
-        order flow for drop copy subscribers."""
-        pass
-
-    def subscribe_drops(self, names):
-        """Request delivery of drop copies for named client sessions."""
-        pass
-
-    def subscribe_prices(self):
-        """Request delivery of pricing.
-
-        Depending on the engine type, this can be either quotes or
-        limit order prices."""
-        pass
-
-    def subscribe_trades(self):
-        """Request delivery of trade reports.
-
-        This is not a drop copy, but rather the unattributed time and
-        sales stream from the matching engine."""
-        pass
-
-    def handle_trade_flow(self, message):
-
-        if not hasattr(message, 'type'):
-            self.log("Bad message:", str(message))
-            return
-
-        t = message.type
-        if t == NEW_ORDER_MESSAGE:
-            pass
-
-        elif t == MODIFY_ORDER_MESSAGE:
-            pass
-
-        elif t == CANCEL_ORDER_MESSAGE:
-            pass
-
-        elif t == CANCEL_ALL_MESSAGE:
-            pass
-
-        else:
-            self.log("Bad message type:", t)
-            return
-
-    def handle_new_order(self, message):
-        """Process new order."""
-        return
-
-    def handle_cancel_order(self, message):
-        """Process attempt to cancel an open oerder."""
-        return
-
-    def handle_subscribe(self, message):
-        """Process request for streaming prices."""
-        return
-
-    def handle_unsubscribe(self, message):
-        """Process request to cancel streaming prices."""
-        return
-
-    def handle_quote(self, message):
-        """Process new submitted quote."""
-        return
-
-    def handle_quote_delete(self, message):
-        """Process withdrawal of a quote."""
-        return
-
-    def publish_message(self, message):
-        return
-
-    def send_login_ack(self, message):
-        """Acknowledge successful login."""
-        return
-
-    def send_login_reject(self, message):
-        """Acknowledge unsuccessful login."""
-        return
-
-    def send_quote_ack(self, message):
-        """Acknowledge submitted quote."""
-        return
-
-    def send_quote_delete_ack(self, message):
-        """Acknowledge deletion of quote."""
-        return
-
-    def send_subscribe_ack(self, message):
-        """Acknowledge successful subscription."""
-        return
-
-    def send_subscribe_reject(self, message):
-        """Acknowledge unsuccessful subscription."""
-        return
-
-    def send_market_data_update(self, message):
-        """Publish new quote to subscribers."""
-        return
-
-    def send_order_ack(self, message):
-        """Acknowledge new order."""
-        return
-
-    def send_order_cancelled(self, message):
-        """Report cancellation of remaining order quantity."""
-        return
-
-    def send_order_execution(self, message):
-        """Report execution of some order quantity."""
+    def detach_session(self, session: Session):
+        """Detach a Session from this Engine."""
+        self._sessions.remove(session)
         return

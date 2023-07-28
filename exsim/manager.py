@@ -22,7 +22,7 @@ import logging
 import pickle
 import struct
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(filename="xs.log", level=logging.DEBUG)
 
 
 class Manager:

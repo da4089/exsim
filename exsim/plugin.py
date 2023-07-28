@@ -10,7 +10,9 @@ class PlugIn:
     #
     #
 
-    # Matching engine
+    # Order book
+    #
+    # A collection of orders, matched against each other.
 
     def add_order(self):
         pass
@@ -19,6 +21,21 @@ class PlugIn:
         pass
 
     def cancel_order(self):
+        pass
+
+    # Quote book
+    #
+    # A collection of quotes.  When an order matches a quote, send an
+    # order request to the quote source, which can accept (send_order_filled)
+    # or reject (send_order_canceled/send_order_rejected) the request.
+
+    def add_or_update_quote(self):
+        pass
+
+    def withdraw_quote(self):
+        pass
+
+    def order_request(self):
         pass
 
     # Instrument master
@@ -79,5 +96,7 @@ class PlugIn:
     def book_update(self):
         """Report change to level and side of order book."""
         pass
+
+
 
 

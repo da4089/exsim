@@ -11,6 +11,7 @@
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -21,26 +22,35 @@
 import logging
 import socket
 
+from .engine import Engine
+from .protocol import Protocol
 from .session import Session
 
 
-logging.basicConfig(level=logging.DEBUG)
+class Endpoint:
+    """
+    An Endpoint represents the combination of a listening socket,
+    a Protocol, and an Engine.  The endpoint accepts connections from
+    clients, and creates a Session for each connection.
+    """
 
-
-class Endpoint(object):
-
-    def __init__(self, name: str, port: int):
+    def __init__(self, name: str, port: int, protocol: Protocol, engine: Engine):
         """Constructor.
 
         :param name: Name of listening endpoint.
-        :param port: TCP port number on which to accept connections."""
-        self._name = name
-        self._engine = None
-        self._protocol = None
+        :param port: TCP port number on which to accept connections.
+        :param protocol: Protocol instance for this Endpoint.
+        :param engine: Engine instance to receive inbound messages."""
 
+        self._name = name
+        self._port = port
+        self._protocol = protocol
+        self._engine = engine
+
+        # Open socket and listen for connections.
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._socket.bind(('0.0.0.0', port))
+        self._socket.bind(('0.0.0.0', self._port))
         self._socket.listen(5)
         return
 
@@ -48,19 +58,13 @@ class Endpoint(object):
         """Return listening socket."""
         return self._socket
 
-    def set_engine(self, engine):
-        """Set matching engine for this endpoint.
+    def engine(self):
+        """Return reference to Endpoint's configured Engine."""
+        return self._engine
 
-        :param engine: Matching engine."""
-        self._engine = engine
-        return
-
-    def set_protocol(self, protocol):
-        """Set protocol for this endpoint.
-
-        :param protocol: FIXME"""
-        self._protocol = protocol
-        return
+    def protocol(self):
+        """Return reference to Endpoint's configured Protocol."""
+        return self._protocol
 
     def close(self):
         """Stop listening for connections on this endpoint."""
@@ -71,7 +75,5 @@ class Endpoint(object):
     def accept(self) -> Session:
         """Accept an inbound connection to this endpoint."""
         client_sock, client_addr = self._socket.accept()
-        session = Session(client_sock, client_addr)
-        session.set_engine(self._engine)
-        session.set_protocol(self._protocol)
+        session = Session(client_sock, client_addr, self)
         return session
