@@ -2,11 +2,47 @@
 Roadmap
 =======
 
-
 * Structure
   * Daemon, able to emulate execution venues
+    * PyInstaller executable?
+    * Windows/Mac/Linux?
   * UI executable, able to manage the daemon
+    * PyInstaller executable?
+    * Windows/Mac/Linux?
+    * PyQt5?
   * Python API module, able to manage the daemon
+    * PyPI wheel?
+  * Communicate via JSON over TCP?
+* Entities
+  * Venue
+    * A venue trades a collection of Instruments
+    * Offers one or more Endpoints
+    * Defines a collection of features:
+      * Order types
+      * TIFs
+      * etc
+  * Instrument
+    * A tradable thing.
+    * Has only one asset class
+    * Has one or more symbols
+    * Has only one associated Book
+  * Book
+    * Maintains a collection of orders for an instrument
+    * Matches orders to generate trades
+    * Can generate market data
+    * Can generate drop copies
+    * Associated with only one Instrument
+  * Bot
+    * Performs automated trading activity
+    * Associated with a Book
+    * Can be implemented by a plugin
+  * Session
+    * A connection from a client to a venue
+  * Endpoint
+    * A network endpoint
+    * The thing that a client will connect to
+    * Hosts zero or more Sessions
+    * Associated with only one Venue
 * Add ability to define instruments
   * Different asset classes
     * Basic equity-style stuff
@@ -22,9 +58,14 @@ Roadmap
     * Stops
     * Stop Limits
   * Various TIFs
-  * Persist config
-    * File?
-    * Sqlite?
+  * Workflows
+    * Taker
+    * Maker
+    * IOIs
+    * RFQ/RFS
+* Persist config
+  * File?
+  * Sqlite?
 * Minimise work for v1.0
 
 M1
@@ -36,9 +77,9 @@ M1
 
 * Basic simulation matching engine
    * Price-time matching
+   * Taker workflow
    * Orders only (no quoting, etc)
-   * Instrument types:
-      * Standard
+   * Bots
       * Auto-fill
       * Auto-partial
       * Auto-reject
