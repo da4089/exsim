@@ -4,15 +4,15 @@ Roadmap
 
 * Structure
    * Daemon, able to emulate execution venues
-      * PyInstaller executable?
-      * Windows/Mac/Linux?
+      * PyInstaller executable
+      * Windows/Mac/Linux
    * UI executable, able to manage the daemon
-      * PyInstaller executable?
-      * Windows/Mac/Linux?
+      * PyInstaller executable
+      * Windows/Mac/Linux
       * PyQt5?
    * Python API module, able to manage the daemon
-      * PyPI wheel?
-   * Communicate via JSON over TCP?
+      * PyPI wheel
+   * Communicate via JSON over TCP
 * Entities
    * Venue
       * A venue trades a collection of Instruments
@@ -36,13 +36,15 @@ Roadmap
       * Performs automated trading activity
       * Associated with a Book
       * Can be implemented by a plugin
-   * Session
-      * A connection from a client to a venue
    * Endpoint
       * A network endpoint
       * The thing that a client will connect to
       * Hosts zero or more Sessions
       * Associated with only one Venue
+   * Session
+      * A configured connection from a client to a venue
+      * Defines FIX CompIDs, username, password, etc
+      * A session instance is the actual socket connection
 * Add ability to define instruments
    * Different asset classes
       * Basic equity-style stuff
@@ -57,7 +59,12 @@ Roadmap
       * Pegs
       * Stops
       * Stop Limits
-   * Various TIFs
+   * TIFs
+     * DAY
+     * IOC
+     * FOK
+     * GTD
+     * GTC
    * Workflows
       * Taker
       * Maker
