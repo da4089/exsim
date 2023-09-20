@@ -1,7 +1,7 @@
 
 
 class PlugIn:
-    """Defines the APU between the simulator and a plugin module."""
+    """Defines the API between the simulator and a plugin module."""
 
     # The simulator can be customized using plugin modules to implement
     # order matching, and protocol implementations.  The APIs for these
@@ -96,7 +96,3 @@ class PlugIn:
     def book_update(self):
         """Report change to level and side of order book."""
         pass
-
-
-
-

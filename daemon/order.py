@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding: utf-8 -*-
 ########################################################################
 # exsim - Exchange Simulator
@@ -19,29 +18,26 @@
 #
 ########################################################################
 
-# This program can run either as a standalone daemon, or as a local child
-# process for a GUI or API manager.
-#
-# In the standalone case, it should run as a Unix daemon, with either
-# traditional or systemd-style behaviour (ie. optional daemonisation),
-# or as a Windows Service.
-#
-# I will need to investigate how a Windows Service works with
-# PyInstaller -- it *should* be ok, given that distinct executable?
-#
-# So, some flags:
-# -h for help
-# -v for version info
-# -d for debug (log to console, don't detach)
-# -s for systemd behaviour?
-# -p for management port number
-# -i for IP of interface to listen on (can be multiple)
 
+class Order:
+    def __init__(self):
 
+        self.symbol = ''
+        self.suffix = ''
+        self.maturity_year = 0
+        self.maturity_month = 0
+        self.maturity_day = 0
+        self.put_or_call = None
+        self.asset_class = None
+        self.series = 0
 
-def main():
-    pass
+        self.order_type = ''
+        self.tif = ''
+        self.side = ''
 
+        self.order_quantity = 0
+        self.min_quantity = 0  # FIXME: ???
+        self.remaining_quantity = 0
 
-if __name__ == "__main__":
-    main()
+        self.price = 0
+        self.stop_price = 0
